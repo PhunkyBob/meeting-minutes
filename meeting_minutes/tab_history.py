@@ -158,8 +158,20 @@ def tab_history(db: Session, meeting_service: MeetingService, transcription_serv
                         QueryRepository.soft_delete(db, query_id)
                         st.success("Question supprimée avec succès")
                         st.rerun()
-                st.text_area("Question", value=selected_query_rows.iloc[0]["Question"], height=200, disabled=True)
-                st.text_area("Réponse", value=selected_query_rows.iloc[0]["Réponse"], height=200, disabled=True)
+                st.text_area("Question", value=selected_query_rows.iloc[0]["Question"], height=100, disabled=True)
+                st.text_area("Réponse", value=selected_query_rows.iloc[0]["Réponse"], height=300, disabled=True)
+                # Section modification
+                with st.expander("Modifier la réponse"):
+                    new_answer = st.text_area(
+                        "Réponse", value=selected_query_rows.iloc[0]["Réponse"], height=300, key=f"query_{query_id}"
+                    )
+
+                    if st.button("Enregistrer la réponse", key=f"save_{query_id}") and (
+                        new_answer and new_answer != selected_query_rows.iloc[0]["Réponse"]
+                    ):
+                        QueryRepository.update_query(db, query_id, answer=new_answer)
+                        st.success("Réponse mise à jour avec succès")
+                        st.rerun()
 
         else:
             st.info("Aucune question enregistrée pour cette réunion")

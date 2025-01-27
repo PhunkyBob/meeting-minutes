@@ -156,6 +156,23 @@ class QueryRepository:
         return new_query
 
     @staticmethod
+    def update_query(
+        db: Session, query_id: int, question: Optional[str] = None, answer: Optional[str] = None
+    ) -> Query:
+        """Update query in database"""
+        existing = db.query(Query).filter(Query.id == query_id).first()
+        if not existing:
+            raise ValueError(f"Query with ID {query_id} not found")
+        if question:
+            existing.question = question
+        if answer:
+            existing.answer = answer
+
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    @staticmethod
     def soft_delete(db: Session, query_id: int) -> None:
         """Mark query as deleted"""
         db.query(Query).filter(Query.id == query_id).update({"deleted": datetime.now()})

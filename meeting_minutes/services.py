@@ -49,7 +49,7 @@ class MeetingService:
 
         # Store the transcript in the database
         transcript_text = TranscriptionService.format_transcript(transcript)
-        TranscriptRepository.store_transcript(
+        TranscriptRepository.insert_or_update(
             db=self.db, meeting_id=meeting_id, text=transcript.text, transcript=transcript_text
         )
 
