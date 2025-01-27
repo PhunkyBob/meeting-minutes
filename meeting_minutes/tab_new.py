@@ -6,13 +6,12 @@ def tab_new(meeting_service):
     st.header("Nouvelle réunion")
     if st.session_state.get("reset_form", False):
         meeting_name = st.text_input("Nom de la réunion", value=" ")
-        uploaded_file = st.file_uploader("Déposer le fichier mp3", type=["mp3"])
         st.session_state["reset_form"] = False
     else:
         meeting_name = st.text_input("Nom de la réunion", value=st.session_state.get("meeting_name", ""))
-        uploaded_file = st.file_uploader("Déposer le fichier mp3", type=["mp3"])
     selected_date = st.date_input("Date de la réunion")
     meeting_date = selected_date if isinstance(selected_date, date) else selected_date[0] if selected_date else None
+    uploaded_file = st.file_uploader("Déposer le fichier mp3", type=["mp3"])
 
     if st.button("Ajouter", key="add_meeting"):
         if not meeting_name:
