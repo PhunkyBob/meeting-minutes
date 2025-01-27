@@ -1,14 +1,11 @@
-from typing import Dict
+import os
 import streamlit as st
-from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 import pandas as pd
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 
 from meeting_minutes import tab_history, tab_new, tab_prompts
-from datetime import date
 from meeting_minutes.database import init_db, get_db
-from meeting_minutes.models import Meeting, Prompt
-from meeting_minutes.repository import MeetingRepository, PromptRepository, QueryRepository, TranscriptRepository
 from meeting_minutes.services import MeetingService, TranscriptionService
 
 st.session_state["tabs"] = st.session_state.get("tabs", None)
@@ -16,6 +13,7 @@ st.set_page_config(layout="wide")
 
 
 def main() -> None:
+    load_dotenv()
     init_db()
     db: Session = next(get_db())
 

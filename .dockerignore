@@ -1,0 +1,3 @@
+# Ignorer tous les fichiers et répertoires commençant par un point
+.*
+data/

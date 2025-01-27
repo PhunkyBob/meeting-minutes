@@ -21,16 +21,27 @@ Meeting Minute helps you transcribe and analyze your meetings using AssemblyAI's
 ## Installation
 
 1. Clone this repository
-2. Install dependencies:
 
-```sh
-pip install .
-```
-
-Create a `.env` file with your AssemblyAI API key:
+2. Create a `.env` file with your AssemblyAI API key:
 
 ```txt
 ASSEMBLYAI_API_KEY=your_api_key_here
+```
+
+3. Run with `uv` (it will create the virtual environment)
+
+```sh
+uv run streamlit run main.py
+```
+
+## Docker
+
+1. Clone this repository
+
+2. Run Docker
+
+```sh
+docker compose up
 ```
 
 ## Development

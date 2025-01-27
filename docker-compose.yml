@@ -1,0 +1,12 @@
+services:
+  meeting-minutes:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meeting-minutes
+    restart: unless-stopped
+    volumes:
+      - ./.env:/app/.env
+      - ./data:/app/data
+    ports:
+      - "8501:8501" # Streamlit port

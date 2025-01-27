@@ -153,6 +153,9 @@ class MeetingService:
 
 
 class TranscriptionService:
+    def __init__(self):
+        aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
+
     def transcribe_audio(self, file: str | BinaryIO) -> aai.Transcript:
         config = aai.TranscriptionConfig(
             speech_model=aai.SpeechModel.best, speaker_labels=True, language_detection=True
