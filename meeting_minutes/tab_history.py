@@ -134,7 +134,7 @@ def tab_history(db: Session, meeting_service: MeetingService, transcription_serv
             gb.configure_column("Réponse", hide=True)
             gb.configure_default_column(sort_descending_first=True)
             gb.configure_grid_options(defaultColDef={"sortable": True})
-            gb.configure_column("Date", sort="desc")
+            gb.configure_column("Date", sort="asc")
 
             grid_options_queries = gb.build()
 
