@@ -121,7 +121,7 @@ class MeetingService:
                 if meeting_id not in local_transcripts:
                     # Add new transcript for remote meeting
                     remote_transcript = TranscriptionService().get_transcript(meeting_id)
-                    TranscriptRepository.store_transcript(
+                    TranscriptRepository.insert_or_update(
                         db=self.db,
                         meeting_id=meeting_id,
                         text=remote_transcript.text or "",
@@ -176,3 +176,7 @@ class TranscriptionService:
     @staticmethod
     def format_transcript(transcript) -> str:
         return "\n".join(f"[Speaker {utterance.speaker}] {utterance.text}" for utterance in transcript.utterances)
+
+    @staticmethod
+    def delete_transcript(transcript_id: str) -> None:
+        aai.Transcript.delete_by_id(transcript_id)

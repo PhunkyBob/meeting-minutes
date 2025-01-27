@@ -69,6 +69,7 @@ def tab_history(db: Session, meeting_service: MeetingService, transcription_serv
                     st.write("Êtes-vous sûr de vouloir supprimer cette réunion ?")
                     if st.button("Confirmer la suppression", key="confirm_delete_meeting"):
                         MeetingRepository.soft_delete(db, meeting_id)
+                        TranscriptionService.delete_transcript(meeting_id)
                         st.success("Réunion supprimée avec succès")
                         st.rerun()
 

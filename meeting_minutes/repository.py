@@ -49,12 +49,20 @@ class MeetingRepository:
 
 class TranscriptRepository:
     @staticmethod
-    def store_transcript(db: Session, meeting_id: str, text: str, transcript: str) -> Transcript:
-        db_transcript = Transcript(meeting=meeting_id, text=text, transcript=transcript)
-        db.add(db_transcript)
+    def insert_or_update(
+        db: Session, meeting_id: str, text: str, transcript: str, deleted: Optional[datetime] = None
+    ) -> Transcript:
+        existing = db.query(Transcript).filter(Transcript.meeting == meeting_id).first()
+        if existing:
+            existing.text = text
+            existing.transcript = transcript
+            existing.deleted = deleted
+        else:
+            existing = Transcript(meeting=meeting_id, text=text, transcript=transcript, deleted=deleted)
+            db.add(existing)
         db.commit()
-        db.refresh(db_transcript)
-        return db_transcript
+        db.refresh(existing)
+        return existing
 
     @staticmethod
     def get_transcript(db: Session, meeting_id: str) -> Optional[Transcript]:
@@ -64,7 +72,7 @@ class TranscriptRepository:
     def get_all(db: Session, include_deleted: bool = False) -> Dict[str, Transcript]:
         query = db.query(Transcript)
         if not include_deleted:
-            query = query.filter(Meeting.deleted.is_(None))
+            query = query.filter(Transcript.deleted.is_(None))
         return {transcript.meeting: transcript for transcript in query.all()}
 
     @staticmethod
