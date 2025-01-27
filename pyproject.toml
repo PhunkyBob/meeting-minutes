@@ -1,0 +1,18 @@
+[project]
+name = "meeting-minutes"
+version = "0.1.0"
+description = "A meeting transcription and analysis application built with Python and ❤️"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "streamlit",
+    "assemblyai",
+    "python-dotenv",
+    "streamlit-aggrid>=1.1.0",
+    "sqlalchemy>=2.0.37",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+]
