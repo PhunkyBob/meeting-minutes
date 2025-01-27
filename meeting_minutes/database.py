@@ -9,7 +9,8 @@ class Base(DeclarativeBase):
 
 # Database configuration
 DB_PATH = os.getenv("DB_PATH", "meetings.db")
-engine = create_engine(f"sqlite:///{DB_PATH}", echo=False)  # `echo=True` pour le débogage
+os.makedirs("data", exist_ok=True)
+engine = create_engine(f"sqlite:///data/{DB_PATH}", echo=False)  # `echo=True` pour le débogage
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
