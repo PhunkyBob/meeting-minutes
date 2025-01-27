@@ -30,7 +30,7 @@ def tab_history(db: Session, meeting_service: MeetingService, transcription_serv
                     {
                         "ID": meeting.id,
                         "Nom": meeting.name,
-                        "Date réunion": meeting.date,
+                        "Date réunion": str(meeting.date),
                         "Créée": meeting.created,
                         "Statut": meeting.status,
                     }
