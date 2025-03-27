@@ -22,8 +22,7 @@ def tab_history(db: Session, meeting_service: MeetingService, transcription_serv
     meeting_id = None
     with col1:
         st.subheader("Meetings")
-        meetings: Dict[str, Meeting] = MeetingRepository.get_all(db)
-        if meetings:
+        if meetings := MeetingRepository.get_all(db):
             # Créer le DataFrame
             df = pd.DataFrame(
                 data=[
@@ -73,9 +72,7 @@ def tab_history(db: Session, meeting_service: MeetingService, transcription_serv
                         st.success("Réunion supprimée avec succès")
                         st.rerun()
 
-                # Section transcript
-                transcript = TranscriptRepository.get_transcript(db, meeting_id)
-                if transcript:
+                if transcript := TranscriptRepository.get_transcript(db, meeting_id):
                     st.text_area("Transcript", value=transcript.transcript, height=150, disabled=True)
 
                 # Récupérer les prompts

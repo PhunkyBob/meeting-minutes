@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 from meeting_minutes import tab_history, tab_new, tab_prompts
 from meeting_minutes.database import init_db, get_db
 from meeting_minutes.services import MeetingService, TranscriptionService
+from meeting_minutes.tabs import Tab
 
-st.session_state["tabs"] = st.session_state.get("tabs", None)
+st.session_state["tabs"] = st.session_state.get("tabs", Tab.NEW_MEETING.value)
 st.set_page_config(layout="wide")
 
 
@@ -19,7 +20,7 @@ def main() -> None:
 
     st.title("Meeting Minutes")
 
-    tab1, tab2, tab3 = st.tabs(["Nouvelle réunion", "Historique", "Prompts prédéfinis"])
+    tab1, tab2, tab3 = st.tabs([Tab.NEW_MEETING.value, Tab.HISTORY.value, Tab.PROMPTS.value])
     meeting_service = MeetingService(db)
     transcription_service = TranscriptionService()
 

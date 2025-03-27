@@ -1,6 +1,8 @@
 import streamlit as st
 from datetime import date
 
+from meeting_minutes.tabs import Tab
+
 
 def tab_new(meeting_service):
     st.header("Nouvelle réunion")
@@ -22,10 +24,9 @@ def tab_new(meeting_service):
             st.error("Veuillez déposer un fichier mp3")
         else:
             with st.spinner("La transcription est en cours, veuillez patienter..."):
-                meeting_id = meeting_service.transcribe_meeting(uploaded_file, meeting_name, meeting_date)
-                if meeting_id:
+                if meeting_id := meeting_service.transcribe_meeting(uploaded_file, meeting_name, meeting_date):
                     # Réinitialiser les champs via rerun
-                    st.session_state["tabs"] = "Historique"
+                    st.session_state["tabs"] = Tab.HISTORY.value
                     st.session_state["reset_form"] = True
                     meeting_service.sync_meetings(include_remote=True)
                     st.rerun()

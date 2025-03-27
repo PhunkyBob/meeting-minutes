@@ -10,6 +10,7 @@ class MeetingService:
     def __init__(self, db_session):
         self.db = db_session
         aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
+        aai.settings.base_url = os.getenv("ASSEMBLYAI_BASE_URL", "https://api.eu.assemblyai.com")
 
     def transcribe_meeting(
         self,
@@ -66,29 +67,32 @@ class MeetingService:
 
     def _fetch_remote_meetings(self) -> Dict[str, Meeting]:
         transcripts: Dict[str, Meeting] = {}
+        already_processed = set()
         try:
             transcriber = aai.Transcriber()
             params = aai.ListTranscriptParameters()
             page = transcriber.list_transcripts(params)
             while page.transcripts:
-                transcripts.update(
-                    {
-                        t.id: Meeting(
-                            id=t.id,
-                            created=datetime.fromisoformat(t.created) if t.created else None,
-                            status=t.status.name,
-                        )
-                        for t in page.transcripts
-                        if t.audio_url != "http://deleted_by_user"
-                    }
-                )
-                if not page.page_details.before_id_of_prev_url:
+                transcripts |= {
+                    t.id: Meeting(
+                        id=t.id,
+                        created=(datetime.fromisoformat(t.created) if t.created else None),
+                        status=t.status.name,
+                    )
+                    for t in page.transcripts
+                    if t.audio_url != "http://deleted_by_user"
+                }
+                if (
+                    not page.page_details.before_id_of_prev_url
+                    or page.page_details.before_id_of_prev_url in already_processed
+                ):
                     break
                 params.before_id = page.page_details.before_id_of_prev_url
+                already_processed.update({page.page_details.before_id_of_prev_url})
                 page = transcriber.list_transcripts(params)
             return transcripts
         except Exception as e:
-            raise RuntimeError(f"Failed to fetch remote meetings: {str(e)}")
+            raise RuntimeError(f"Failed to fetch remote meetings: {str(e)}") from e
 
     def _merge_meetings(self, local: Dict[str, Meeting], remote: Dict[str, Meeting]) -> None:
         """
@@ -132,7 +136,7 @@ class MeetingService:
             self.db.commit()
         except Exception as e:
             self.db.rollback()  # Rollback en cas d'erreur
-            raise RuntimeError(f"Failed to merge meetings: {str(e)}")
+            raise RuntimeError(f"Failed to merge meetings: {str(e)}") from e
 
     @staticmethod
     def _format_meeting_date(meeting_date: Optional[date]) -> Optional[datetime]:
@@ -155,6 +159,7 @@ class MeetingService:
 class TranscriptionService:
     def __init__(self):
         aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
+        aai.settings.base_url = os.getenv("ASSEMBLYAI_BASE_URL", "https://api.eu.assemblyai.com")
 
     def transcribe_audio(self, file: str | BinaryIO) -> aai.Transcript:
         config = aai.TranscriptionConfig(
