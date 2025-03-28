@@ -57,7 +57,7 @@ class MeetingService:
         return meeting_id
 
     def sync_meetings(self, include_remote: bool = False) -> Dict[str, Meeting]:
-        local_meetings = MeetingRepository.get_all(self.db)
+        local_meetings = MeetingRepository.get_all(self.db, include_deleted=include_remote)
 
         if include_remote:
             remote_meetings = self._fetch_remote_meetings()
@@ -103,7 +103,7 @@ class MeetingService:
             remote: Dictionary of remote meetings (key: meeting ID, value: Meeting object).
         """
         try:
-            local_transcripts = TranscriptRepository.get_all(self.db)
+            local_transcripts = TranscriptRepository.get_all(self.db, include_deleted=True)
             for meeting_id, remote_meeting in remote.items():
                 if meeting_id in local:
                     # Update existing meeting with remote data
@@ -125,12 +125,13 @@ class MeetingService:
                 if meeting_id not in local_transcripts:
                     # Add new transcript for remote meeting
                     remote_transcript = TranscriptionService().get_transcript(meeting_id)
-                    TranscriptRepository.insert_or_update(
-                        db=self.db,
-                        meeting_id=meeting_id,
-                        text=remote_transcript.text or "",
-                        transcript=TranscriptionService.format_transcript(remote_transcript),
-                    )
+                    if transcript := TranscriptionService.format_transcript(remote_transcript):
+                        TranscriptRepository.insert_or_update(
+                            db=self.db,
+                            meeting_id=meeting_id,
+                            text=remote_transcript.text or "",
+                            transcript=transcript,
+                        )
 
             # Commit changes to the database
             self.db.commit()
@@ -180,7 +181,11 @@ class TranscriptionService:
 
     @staticmethod
     def format_transcript(transcript) -> str:
-        return "\n".join(f"[Speaker {utterance.speaker}] {utterance.text}" for utterance in transcript.utterances)
+        return (
+            "\n".join(f"[Speaker {utterance.speaker}] {utterance.text}" for utterance in transcript.utterances)
+            if transcript.utterances
+            else ""
+        )
 
     @staticmethod
     def delete_transcript(transcript_id: str) -> None:

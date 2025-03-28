@@ -13,6 +13,31 @@ st.session_state["tabs"] = st.session_state.get("tabs", Tab.NEW_MEETING.value)
 st.set_page_config(layout="wide")
 
 
+def switch_to_tab(tab_name):
+    js_code = f"""
+    <script>
+        // Select the tab container
+        console.log("Switching to tab: {tab_name}")
+        var tabContainer = window.parent.document.querySelector('.stTabs');
+        
+        // Select the tab buttons
+        var tabButtons = tabContainer.querySelectorAll('[role="tab"]');
+        
+        // Find the button for the target tab and click it
+        tabButtons.forEach(function(button) {{
+            if (button.innerText.trim() === "{tab_name}") {{
+                button.click();
+            }}
+        }});
+    </script>
+    """
+    # Execute the JavaScript code
+    st.components.v1.html(js_code, height=0, width=0)
+
+
+switch_to_tab(st.session_state["tabs"])
+
+
 def main() -> None:
     load_dotenv()
     init_db()
